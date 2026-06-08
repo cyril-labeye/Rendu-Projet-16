@@ -29,7 +29,7 @@ python -m spacy download fr_core_news_md
 
 * **La Clé API :** Pour des raisons de sécurité, il n'y a pas de clé API présente dans le code source. Vous devez configurer une variable d'environnement en local.
 
-À la racine du projet, juste après le `=` et sans mettre d'espace, copiez-collez votre clé API Google dans le fichier `.env`. Le fichier `.env` doit avoir ce format à la fin :
+À la racine du projet, dans le fichier `.env`, juste après le `=` et sans mettre d'espace, copiez-collez votre clé API Google . Le fichier `.env` doit avoir ce format à la fin :
 
 ```text
 Google_API="VOTRE_CLE_API_GOOGLE_ICI"
