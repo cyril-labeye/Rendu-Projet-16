@@ -18,7 +18,8 @@ Ce projet est une application web permettant d'extraire automatiquement des enti
 Commandes à exécuter pour l'installation des bibliothèques :
 ```text
 pip install streamlit langchain langgraph langchain-google-genai pydantic pyvis spacy python-dotenv sentence-transformers
-
+```
+```text
 python -m spacy download fr_core_news_md
 ```
 
@@ -49,6 +50,22 @@ python -m streamlit run projet16_graphe_src.py
 ```
 
 Une fois sur l'interface web, téléversez un fichier au format Markdown via le chargeur de fichier.
+
+### 4. Le Module de Vérification (Programme de test)
+
+Ce projet inclut un programme de test (`module_verification.py`). Il permet de tester la précision de notre outil d'extraction en générant des graphes de relations aléatoires, en les bruitant avec du texte hors sujet, puis en comparant les résultats de l'IA avec les graphes de relations initiaux.
+
+Pour lancer une série de tests, exécutez cette commande dans votre terminal :
+
+```bash
+python module_verification.py
+```
+
+Lors de l'exécution, le script vous demandera :
+1. Le **nombre de sommets** souhaité pour le graphe de départ.
+2. Le **nombre de tests (boucles)** à effectuer.
+
+Le script calculera les taux de Faux Positifs (inventions) et de Faux Négatifs (oublis) pour les entités et les relations. Un bilan de précision globale sera affiché dans la console et l'historique sera sauvegardé automatiquement dans le fichier `historique_tests.csv`.
 
 <br>
 <br>
