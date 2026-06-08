@@ -19,7 +19,7 @@ from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import UnstructuredMarkdownLoader
-
+from markitdown import MarkItDown
 #Imports LangGraph
 from langgraph.graph import START, END, StateGraph, MessagesState
 
@@ -27,11 +27,11 @@ load_dotenv()
 Google_API=os.getenv("Google_API")
 model=ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite",
                              temperature=0,
-                             google_api_key=Google_API)
+                             google_api_key="AIzaSyBIkEu-qaxigGAkUvkIhm1L5ass4rHLtSo")
 
 def enlever_accents(texte):
     """Retire les accents d'une chaîne de caractères."""
-    # Sépare la lettre de son accent
+    #Sépare la lettre de son accent
     texte_normalise = unicodedata.normalize('NFD', texte)
     # Garde uniquement la lettre de base
     return ''.join(c for c in texte_normalise if unicodedata.category(c) != 'Mn')
@@ -112,7 +112,7 @@ nlp=spacy.load("fr_core_news_md")
 
 
 
-parser_normalisation = PydanticOutputParser(pydantic_object=JSON_Normalise)
+parser_normalisation=PydanticOutputParser(pydantic_object=JSON_Normalise)
 
 def text_splitter(nom_file):
    """
@@ -121,7 +121,8 @@ def text_splitter(nom_file):
 
    loader = UnstructuredMarkdownLoader(nom_file)
    doc=loader.load()
-   decoupage=RecursiveCharacterTextSplitter(chunk_size=2000,chunk_overlap=800,length_function=len)
+   #Varier la taille des morceaux et le chevauchement pour éviter les problèmes de contexte trop court ou de découpage au mauvais endroit
+   decoupage=RecursiveCharacterTextSplitter(chunk_size=12000,chunk_overlap=800,length_function=len)
    pages=decoupage.split_documents(doc)
 
    return pages
@@ -236,19 +237,20 @@ def Verificateur(state: GraphState):
     liste_suggestions = []
 
     try:
-        # On transforme le json en objet Pydantic
+        #On transforme le json en objet Pydantic
         json_obj = JSON_Normalise.model_validate_json(jsonn)
         
-        # Lecture du texte avec spacy et normalisation
+        #Lecture du texte avec spacy et normalisation
         paragraphes = texte_actu.split('\n\n')
         
         # On nettoie et on garde uniquement les paragraphes qui ont un peu de substance
         blocs_propres = [enlever_accents(p.lower().strip()) for p in paragraphes if len(p.strip()) > 10]
         texte_complet = enlever_accents(texte_actu.lower()) 
 
-        # Dictionnaire pour mapper les ID aux noms
+        #Dictionnaire pour mapper les ID aux noms
         id_to_name = {}
 
+        #Boucle vérifiant la présence des entité récupéré dans le texte
         for element in json_obj.entities:
             source_name = element.name
             id_to_name[element.id] = source_name 
@@ -262,6 +264,7 @@ def Verificateur(state: GraphState):
 
         liens_existants = set()
         
+        #boucle vérifiant la présence des liens dans le texte
         for lien in json_obj.Link:
             source_id = lien.source
             cible_id = lien.target
@@ -272,9 +275,9 @@ def Verificateur(state: GraphState):
                 liste_critique.append(f"- Le lien utilise un ID inconnu ('{source_id}' ou '{cible_id}'). Vérifie les ID déclarés.")
                 continue
 
-            source_name = id_to_name[source_id]
-            cible_name = id_to_name[cible_id]
-            lien_valide = False
+            source_name=id_to_name[source_id]
+            cible_name=id_to_name[cible_id]
+            lien_valide=False
 
             for bloc in blocs_propres:
                 if est_present(source_name, bloc) and est_present(cible_name, bloc):
@@ -286,6 +289,8 @@ def Verificateur(state: GraphState):
 
         suggestions_liens = set()
         
+        
+        #Suggestion, pour chaque nom trouvé dans le paragraphe, une combinaison de suggestion de lien est proposé à l'IA
         for bloc in blocs_propres:
             entites_dans_bloc = [e for e in json_obj.entities if est_present(e.name, bloc)]
             
@@ -297,9 +302,11 @@ def Verificateur(state: GraphState):
 
         for nom1, nom2 in suggestions_liens:
             liste_suggestions.append(f"- Suggestion : '{nom1}' et '{nom2}' apparaissent ensemble. S'il y a une relation, ajoute-la. Sinon, renvoie simplement le JSON.")
-
+    
+    #Vérification de la structure du Json
     except ValidationError as e:
         liste_critique.append(f"- Erreur fatale de structure JSON (Pydantic) : {e}. Corrige impérativement le format.")
+    
     except Exception as e:
         liste_critique.append(f"- Erreur inattendue lors de la vérification : {str(e)}")
 
@@ -425,6 +432,7 @@ import os
 
 TAILLE_MIN = 10
 TAILLE_MAX = 80
+
 def occurence(f_md: str, data: dict):
     """ 
     Fonction qui recherche le nombre de fois que les sommets apparaissent dans le texte.
@@ -440,9 +448,7 @@ def occurence(f_md: str, data: dict):
     # 1. On lit tout le texte d'un coup et on le met en minuscules
     with open(f_md, "r", encoding="utf-8") as f:
         texte_entier = f.read().lower() 
-
-    texte_entier_sans_accent = enlever_accents(texte_entier)
-
+    texte_entier=enlever_accents(texte_entier) # on enlève les accents du texte entier pour éviter les problèmes d'accents dans les recherches
     liste_mot_occu = []
    
     # 2. On parcourt les entités
@@ -450,7 +456,7 @@ def occurence(f_md: str, data: dict):
         nom_original = entity["name"].lower() # met tout en minuscule 
     
         # On compte combien de fois apparaît le nom de base
-        nbr = texte_entier_sans_accent.count(nom_original)
+        nbr = texte_entier.count(nom_original)
 
         # On rajoute avec le nom inversé 
         morceaux = nom_original.split(" ") # coupe au niveau de l'espace 
@@ -460,12 +466,13 @@ def occurence(f_md: str, data: dict):
             nom = morceaux[1]
             nom_inverse = nom + " " + prenom 
                 
-            nbr += texte_entier_sans_accent.count(nom_inverse)
+                # CORRECTION 1 : On compte bien le nom_inverse ici !
+            nbr += texte_entier.count(nom_inverse)
 
         # On ajoute le compte des alias
         liste_alias = entity.get("Alias", [])
         for un_alias in liste_alias:
-            nbr += texte_entier_sans_accent.count(un_alias.lower()) 
+            nbr += texte_entier.count(un_alias.lower()) 
                 
         # 3. On sauvegarde le résultat
         liste_mot_occu.append((entity["name"], nbr))
@@ -481,7 +488,8 @@ def echelle(liste_occurrences: list):
     ========
     (list) Une liste contenant chaque sommet et son niveau.    
     """
-
+    if len(liste_occurrences) == 0:
+        return []
     # 1. Calcul de la règle de Sturges 
     nb_paliers = 1 + floor(log2(len(liste_occurrences))) 
     maxi_p = max(occ for mot, occ in liste_occurrences)
@@ -579,7 +587,10 @@ def affichage_graphe(f_json: str, f_md: str):
         compteur[lien["target"]] = compteur.get(lien["target"], 0) + 1  
 
     # 2. Ajout des noeuds au graphe
-    nb_paliers_total = max(dico_amplitude.values())  # à calculer avant la boucle
+    if len(dico_amplitude) == 0:
+        nb_paliers_total = 1
+    else:
+        nb_paliers_total = max(dico_amplitude.values())  # à calculer avant la boucle
 
     for _, (id_num, nom, col, ampl) in noms.items():
         taille_seil = TAILLE_MIN + ((ampl - 1) / (nb_paliers_total - 1)) * (TAILLE_MAX - TAILLE_MIN) ** (ampl / nb_paliers_total)
@@ -706,29 +717,47 @@ st.set_page_config(
     page_title="Visualisation de Graphe",
     layout="wide"
 )
-
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            header {visibility: hidden;}
+            .stDeployButton {display:none;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 st.title("Visualisation du Graphe de Connaissances")
 st.markdown("Uploadez un fichier texte ou Markdown pour extraire automatiquement les entités et leurs relations.")
 
-fichier_upload=st.file_uploader("Choisissez un fichier au format .md",type=["md"])
+fichier_upload=st.file_uploader("Choisissez un fichier au format .md",type=None)
+
 exec=True
 if fichier_upload is not None:
+    
+    #Chargement du fichier et conversion en markdown    
     message=st.empty()
     message.info(f"Fichier chargé : {fichier_upload.name}")
-    chemin_temp = f"temp_{fichier_upload.name}"
-    with open(chemin_temp, "wb") as fi:
+    chemin_brut = f"brut_{fichier_upload.name}"
+    with open(chemin_brut, "wb") as fi:
         fi.write(fichier_upload.getbuffer())
-    
+    md_converter = MarkItDown()
+    resultat_conversion = md_converter.convert(chemin_brut)
+    chemin_temp = f"temp_{fichier_upload.name}.md"
+    with open(chemin_temp, "w", encoding="utf-8") as f:
+        f.write(resultat_conversion.text_content)
+
+    if os.path.exists(chemin_brut):
+        os.remove(chemin_brut)
+
+    #Interface pour générer le graphe et l'afficher
     if st.button("Générer le Graphe de Connaissances"):
         message.empty()       
         message.info("Début de génération de graphe.")
         texte_pages=text_splitter(chemin_temp)
-        resultat_f=react_graph.invoke({
-                       "pages": texte_pages,
-                       "index": 1,
-                       "messages": [],
-                       "Json_f": []
-                    })
+        barre = st.progress(0.0)
+        
+        for resultat_f in react_graph.stream({"pages": texte_pages, "index": 0, "messages": [], "Json_f": []}, stream_mode="values"):
+            barre.progress(resultat_f.get("index", 0) / len(texte_pages))
         json_valides=[
             JSON_Normalise.model_validate_json(msg.content) 
             for msg in resultat_f["Json_f"]
@@ -738,7 +767,7 @@ if fichier_upload is not None:
              f.write(texte_final.model_dump_json(indent=4))   
         st.success("Graphe de Connaissances généré avec succès !")
         st.subheader("Visualisation du Graphe")
-        code_html=affichage_graphe(fichier_upload.name.split(".")[0]+".json",fichier_upload.name)
+        code_html = affichage_graphe(fichier_upload.name.split(".")[0]+".json", chemin_temp)
         with open(fichier_upload.name.split(".")[0]+".html", 'w', encoding='utf-8') as f:
             f.write(code_html)
         components.html(
@@ -746,4 +775,5 @@ if fichier_upload is not None:
             height=800,      
             scrolling=True
         )
-                
+        if os.path.exists(chemin_temp):
+            os.remove(chemin_temp)
