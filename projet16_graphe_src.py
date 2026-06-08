@@ -27,7 +27,7 @@ load_dotenv()
 Google_API=os.getenv("Google_API")
 model=ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite",
                              temperature=0,
-                             google_api_key="AIzaSyBIkEu-qaxigGAkUvkIhm1L5ass4rHLtSo")
+                             google_api_key=Google_API)
 
 def enlever_accents(texte):
     """Retire les accents d'une chaîne de caractères."""
