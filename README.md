@@ -13,7 +13,7 @@ Ce projet est une application web permettant d'extraire automatiquement des enti
     - `pyvis` (pour la cartographie du graphe)
     - `spacy` (pour le traitement du langage naturel)
     - `python-dotenv`
-    - `sentence_transformers`
+    - `sentence_transformers` (pour le module de vérification)
  
 Commandes à exécuter pour l'installation des bibliothèques :
 ```text
