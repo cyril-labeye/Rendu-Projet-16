@@ -95,7 +95,7 @@ class PersonneNormalisee(BaseModel):
     id:str=Field(description="Unique and deterministic primary key. Mandatory format: strict snake_case (first_name_last_name), purely ASCII (e.g., 'jeffrey_skilling').")
     type:str=Field(default="person", description="Strict entity categorization. Static and mandatory literal value: 'person'.")
     name:str=Field(description="Normalized full legal name, converted to pure ASCII characters (no accented characters).")
-    Nickname:Annotated[list[str], Field(default=[], description="Exhaustive and strictly deduplicated list of identified pseudonyms, communication aliases, or diminutives." )]
+    Alias:Annotated[list[str], Field(default=[], description="Exhaustive and strictly deduplicated list of identified pseudonyms, communication aliases, or diminutives." )]
 
 class JSON_Normalise(BaseModel):
     entities: list[EntiteeNormalisee | PersonneNormalisee] = Field(description="Root collection (graph nodes) consolidating all extracted entities and persons. Must undergo absolute entity resolution: no real-world identity may appear as a duplicate.")
