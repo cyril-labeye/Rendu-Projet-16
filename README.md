@@ -35,9 +35,9 @@ python -m spacy download fr_core_news_md
 Google_API="VOTRE_CLE_API_GOOGLE_ICI"
 ```
 
-### 3. L'Exécution du code
+### 3. L'Exécution du code (l'outil d'extraction, le programme principal)
 
-Pour exécuter le code et ouvrir l'interface `Streamlit`, tapez dans un terminal la commande :
+Pour exécuter l'outil d'extraction et ouvrir l'interface `Streamlit`, tapez dans un terminal la commande :
 
 ```text
 streamlit run projet16_graphe_src.py
