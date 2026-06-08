@@ -14,10 +14,11 @@ Ce projet est une application web permettant d'extraire automatiquement des enti
     - `spacy` (pour le traitement du langage naturel)
     - `python-dotenv`
     - `sentence_transformers` (pour le module de vérification)
+    - `markitdown` (pour la conversion d'un fichier (au format pdf,docx...) au format pdf)
  
 Commandes à exécuter pour l'installation des bibliothèques :
 ```text
-pip install streamlit langchain langgraph langchain-google-genai pydantic pyvis spacy python-dotenv sentence-transformers
+pip install streamlit langchain langgraph langchain-google-genai pydantic pyvis spacy python-dotenv sentence-transformers markitdow[all]
 ```
 ```text
 python -m spacy download fr_core_news_md
