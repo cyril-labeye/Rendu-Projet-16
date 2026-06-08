@@ -425,7 +425,6 @@ import os
 
 TAILLE_MIN = 10
 TAILLE_MAX = 80
-
 def occurence(f_md: str, data: dict):
     """ 
     Fonction qui recherche le nombre de fois que les sommets apparaissent dans le texte.
@@ -442,6 +441,8 @@ def occurence(f_md: str, data: dict):
     with open(f_md, "r", encoding="utf-8") as f:
         texte_entier = f.read().lower() 
 
+    texte_entier_sans_accent = enlever_accents(texte_entier)
+
     liste_mot_occu = []
    
     # 2. On parcourt les entités
@@ -449,7 +450,7 @@ def occurence(f_md: str, data: dict):
         nom_original = entity["name"].lower() # met tout en minuscule 
     
         # On compte combien de fois apparaît le nom de base
-        nbr = texte_entier.count(nom_original)
+        nbr = texte_entier_sans_accent.count(nom_original)
 
         # On rajoute avec le nom inversé 
         morceaux = nom_original.split(" ") # coupe au niveau de l'espace 
@@ -459,12 +460,12 @@ def occurence(f_md: str, data: dict):
             nom = morceaux[1]
             nom_inverse = nom + " " + prenom 
                 
-            nbr += texte_entier.count(nom_inverse)
+            nbr += texte_entier_sans_accent.count(nom_inverse)
 
         # On ajoute le compte des alias
         liste_alias = entity.get("Alias", [])
         for un_alias in liste_alias:
-            nbr += texte_entier.count(un_alias.lower()) 
+            nbr += texte_entier_sans_accent.count(un_alias.lower()) 
                 
         # 3. On sauvegarde le résultat
         liste_mot_occu.append((entity["name"], nbr))
