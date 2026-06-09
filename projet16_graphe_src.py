@@ -727,9 +727,9 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 st.title("Visualisation du Graphe de Connaissances")
-st.markdown("Uploadez un fichier texte ou Markdown pour extraire automatiquement les entités et leurs relations.")
+st.markdown("Uploadez un fichier texte pour extraire automatiquement les entités et leurs relations.")
 
-fichier_upload=st.file_uploader("Choisissez un fichier au format .md",type=None)
+fichier_upload=st.file_uploader("Choisissez un fichier",type=None)
 
 exec=True
 if fichier_upload is not None:
