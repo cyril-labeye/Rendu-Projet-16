@@ -1,7 +1,7 @@
 # Projet 16 : *Création automatique de graphes de relations à partir d’un rapport de mission*
 ----------------------------------------------------------------
 
-Ce projet est une application web permettant d'extraire automatiquement des entités et des relations depuis un texte Markdown pour générer un graphe interactif.
+Ce projet est une application web permettant d'extraire automatiquement des entités et des relations depuis un fichier texte (.md, .txt, .docx etc..) pour générer un graphe interactif.
 
 ### 1. Les Prérequis et Bibliothèques
 
@@ -14,13 +14,13 @@ Ce projet est une application web permettant d'extraire automatiquement des enti
     - `spacy` (pour le traitement du langage naturel)
     - `python-dotenv`
     - `sentence_transformers` (pour le module de vérification)
-    - `markitdown` (pour la conversion d'un fichier (au format pdf,docx...) au format pdf)
+    - `markitdown` (pour la conversion d'un fichier (au format pdf,docx...)
  
 Commandes à exécuter pour l'installation des bibliothèques :
-```text
-pip install streamlit langchain langgraph langchain-google-genai pydantic pyvis spacy python-dotenv sentence-transformers markitdow[all]
+```bash
+pip install streamlit langchain langgraph langchain-google-genai pydantic pyvis spacy python-dotenv sentence-transformers markitdown[all]
 ```
-```text
+```bash
 python -m spacy download fr_core_news_md
 ```
 
@@ -40,17 +40,17 @@ Google_API="VOTRE_CLE_API_GOOGLE_ICI"
 
 Pour exécuter l'outil d'extraction et ouvrir l'interface `Streamlit`, tapez dans un terminal la commande :
 
-```text
+```bash
 streamlit run projet16_graphe_src.py
 ```
 
 Si ça ne fonctionne pas, tapez cette commande : 
 
-```text
+```bash
 python -m streamlit run projet16_graphe_src.py
 ```
 
-Une fois sur l'interface web, téléversez un fichier au format Markdown via le chargeur de fichier.
+Une fois sur l'interface web, téléversez un fichier texte (.md, .txt, .docx etc..) via le chargeur de fichier.
 
 ### 4. Le Module de Vérification (Programme de test)
 
